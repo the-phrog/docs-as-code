@@ -1,0 +1,121 @@
+openapi: 3.0.3
+info:
+  title: Анализатор отзывов API
+  description: Определение тональности отзывов. Учебный контракт; сервер не реализован.
+  version: 1.0.0
+servers:
+- url: https://example.com/api/v1
+paths:
+  /analysis:
+    post:
+      summary: Определить тональность отзыва
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+      responses:
+        '200':
+          description: Анализ выполнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Пустой или некорректный текст
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Модель недоступна
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /analysis/{id}:
+    get:
+      summary: Получить результат анализа
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+        example: 1
+      responses:
+        '200':
+          description: Результат найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '404':
+          description: Результат не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /models:
+    get:
+      summary: Получить список моделей
+      responses:
+        '200':
+          description: Доступные модели
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Model'
+        '503':
+          description: Каталог моделей недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    AnalysisRequest:
+      type: object
+      required:
+      - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          example: The service was excellent.
+    Analysis:
+      type: object
+      required:
+      - id
+      - sentiment
+      properties:
+        id:
+          type: integer
+          example: 1
+        sentiment:
+          type: string
+          enum:
+          - negative
+          - neutral
+          - positive
+          example: positive
+    Model:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          example: cardiffnlp/twitter-roberta-base-sentiment
+    Error:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          example: Текст не должен быть пустым
