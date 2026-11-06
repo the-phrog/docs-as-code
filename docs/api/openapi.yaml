@@ -34,6 +34,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '422':
+          description: Язык не поддерживается или английский язык не удалось подтвердить
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: Поддерживаются только отзывы на английском языке
+      description: Анализирует только англоязычные отзывы. Перед вызовом модели проверяется
+        язык текста. Если английский язык не подтверждён, модель не вызывается, результат
+        не сохраняется и возвращается 422.
   /analysis/{id}:
     get:
       summary: Получить результат анализа
@@ -87,6 +98,9 @@ components:
           type: string
           minLength: 1
           example: The service was excellent.
+          description: Непустой отзыв только на английском языке. Язык проверяется
+            сервисом перед анализом; другой или неопределённый язык приводит к ответу
+            422.
     Analysis:
       type: object
       required:
